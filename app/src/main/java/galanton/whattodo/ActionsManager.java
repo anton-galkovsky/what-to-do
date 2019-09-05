@@ -12,26 +12,25 @@ import java.util.Collections;
 class ActionsManager {
 
     private ArrayList<ActionView> actionViews;
+    private ArrayList<HorizontalContainer> containers;
     private Activity activity;
     private int screenWidth;
-    private int screenHeight;
 
-    private int minViewWidth;
-    private int minViewHeight;
+    private int minViewSide;
     private String fileName;
 
     ActionsManager(int screenWidth, int screenHeight, String fileName, Activity activity) {
         this.screenWidth = screenWidth;
-        this.screenHeight = screenHeight;
-        minViewHeight = screenHeight / 13;
+        minViewSide = Math.max(screenHeight, screenWidth) / 12;
         this.activity = activity;
         this.fileName = fileName;
         readActionsFromFile();
+        containers = new ArrayList<>();
         updateScreen();
     }
 
     void addAction(int color) {
-        actionViews.add(new ActionView(new Action(color), activity));
+        actionViews.add(new ActionView(new Action(color), activity, minViewSide));
         writeActionsToFile();
         updateScreen();
     }
@@ -47,22 +46,36 @@ class ActionsManager {
     private void updateScreen() {
         Collections.sort(actionViews);
 
+        for (LinearLayout container : containers) {
+            container.removeAllViews();
+        }
         LinearLayout layout = activity.findViewById(R.id.base_linear_layout);
         layout.removeAllViews();
 
-        long sumWeight = Math.max(1, sumWeight());
         for (ActionView actionView : actionViews) {
-            actionView.setHeight(minViewHeight + (int) Math.max(actionView.getAllTime() / 1000, 0));
-            layout.addView(actionView);
+//            double square = minViewSide * minViewSide + (int) Math.sqrt(actionView.getAllTime() / 1000.0);
+            double square = minViewSide * minViewSide + (int) (actionView.getAllTime() / 1000.0);
+            if (square / minViewSide <= screenWidth) {
+                actionView.setWidth((int) (square / minViewSide));
+                actionView.setHeight(minViewSide);
+            } else {
+                actionView.setWidth(screenWidth);
+                actionView.setHeight((int) (square / minViewSide));
+            }
+            for (int i = 0;; i++) {
+                if (containers.size() == i) {
+                    containers.add(new HorizontalContainer(activity));
+                }
+                if (containers.get(i).getActualWidthWith(actionView) <= screenWidth) {
+                    containers.get(i).addActionView(actionView);
+                    break;
+                }
+            }
         }
-    }
-
-    private long sumWeight() {
-        long sumWeight = 0;
-        for (ActionView actionView : actionViews) {
-            sumWeight += actionView.getAllTime();
+        for (HorizontalContainer container : containers) {
+            layout.addView(container);
         }
-        return sumWeight;
+        layout.invalidate();
     }
 
     private void writeActionsToFile() {
@@ -86,7 +99,7 @@ class ActionsManager {
         }
         actionViews = new ArrayList<>();
         for (Action action : actions) {
-            actionViews.add(new ActionView(action, activity));
+            actionViews.add(new ActionView(action, activity, minViewSide));
         }
     }
 }

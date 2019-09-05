@@ -1,6 +1,5 @@
 package galanton.whattodo;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -18,8 +17,11 @@ public class ActionView extends android.support.v7.widget.AppCompatButton implem
     // View part
     private Paint fillPaint;
     private Paint strokePaint;
+    private Paint textPaint;
+    private int actualWidth;
+    private int actualHeight;
 
-    ActionView(Action action, Context context) {
+    ActionView(Action action, Context context, int minViewSide) {
         super(context);
         allTime = action.getAllTime();
         lastUpdateTime = action.getLastUpdateTime();
@@ -32,8 +34,16 @@ public class ActionView extends android.support.v7.widget.AppCompatButton implem
         strokePaint = new Paint();
         strokePaint.setColor(negativeColor(color));
         strokePaint.setStyle(Paint.Style.FILL);
-//        strokePaint.setStyle(Paint.Style.STROKE);
-//        strokePaint.setStrokeWidth(50);
+        textPaint = new Paint();
+        textPaint.setColor(negativeColor(color));
+        textPaint.setTextSize(100);
+
+        actualWidth = 0;
+        actualHeight = 0;
+        setMinWidth(minViewSide);
+        setMinimumWidth(minViewSide);
+        setMinHeight(minViewSide);
+        setMinimumHeight(minViewSide);
 
         setOnClickListener(v -> ((ActionView) v).changeRunning());
     }
@@ -48,16 +58,9 @@ public class ActionView extends android.support.v7.widget.AppCompatButton implem
                     canvas.drawCircle(i, j, 3, strokePaint);
                 }
             }
-//            canvas.drawRect(0, 0, getWidth(), getHeight(), strokePaint);
         }
+        canvas.drawText("" + allTime / 1000, 0, 100, textPaint);
     }
-
-    private int negativeColor(int color) {
-        return Color.rgb(255 - Color.red(color),
-                255 - Color.green(color),
-                255 - Color.blue(color));
-    }
-
 
     public long getAllTime() {
         return allTime;
@@ -83,13 +86,16 @@ public class ActionView extends android.support.v7.widget.AppCompatButton implem
         this.running = running;
     }
 
-    private void changeRunning() {
-        long time = System.currentTimeMillis();
-        if (running) {
-            allTime += time - lastUpdateTime;
-        }
-        lastUpdateTime = time;
-        running = !running;
+    @Override
+    public void setWidth(int pixels) {
+        super.setWidth(pixels);
+        actualWidth = pixels;
+    }
+
+    @Override
+    public void setHeight(int pixels) {
+        super.setHeight(pixels);
+        actualHeight = pixels;
     }
 
     @Override
@@ -109,7 +115,29 @@ public class ActionView extends android.support.v7.widget.AppCompatButton implem
         if (running) {
             allTime += time - lastUpdateTime;
             lastUpdateTime = time;
-//            Log.d("aaaaaaaaaaaaa", "all: " + allTime);
         }
+    }
+
+    int getActualWidth() {
+        return actualWidth;
+    }
+
+    private int negativeColor(int color) {
+        return Color.rgb(255 - Color.red(color),
+                255 - Color.green(color),
+                255 - Color.blue(color));
+    }
+
+    private void changeRunning() {
+        long time = System.currentTimeMillis();
+        if (running) {
+            allTime += time - lastUpdateTime;
+        }
+        lastUpdateTime = time;
+        running = !running;
+    }
+
+    public int getActualHeight() {
+        return actualHeight;
     }
 }
