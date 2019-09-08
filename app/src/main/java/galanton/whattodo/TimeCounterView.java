@@ -4,7 +4,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.support.annotation.NonNull;
 
-class TimeCounterView extends MeasurableView implements Comparable {
+class TimeCounterView extends CounterView implements Comparable {
 
     // Counter part
     private TimeCounterData timeCounterData;
@@ -46,24 +46,23 @@ class TimeCounterView extends MeasurableView implements Comparable {
         canvas.drawText("" + timeCounterData.getCounter() / 1000, 0, 70, textPaint);
     }
 
-    void updateTimes(long time) {
-        timeCounterData.updateTimes(time);
+    @Override
+    int getScaledCounter() {
+        return (int) (timeCounterData.getCounter() / 1000);
     }
 
     @Override
-    public int compareTo(@NonNull Object o) {
-        return timeCounterData.compareTo(((TimeCounterView) o).timeCounterData);
-    }
-
-    long getCounter() {
-        return timeCounterData.getCounter();
-    }
-
     TimeCounterData getData() {
         return timeCounterData;
     }
 
+    @Override
     void onClick() {
         timeCounterData.changeRunning();
+    }
+
+    @Override
+    void updateTimes(long time) {
+        timeCounterData.updateTimes(time);
     }
 }

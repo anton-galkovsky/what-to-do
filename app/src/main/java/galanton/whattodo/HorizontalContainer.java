@@ -25,13 +25,13 @@ public class HorizontalContainer extends LinearLayout {
         actualWidth = dividerStep;
     }
 
-    void addMeasurableView(MeasurableView measurableView) {
-        super.addView(measurableView);
-        actualWidth = getActualWidthWith(measurableView);
+    void addMeasurableView(CounterView counterView) {
+        super.addView(counterView);
+        actualWidth = getActualWidthWith(counterView);
     }
 
-    int getActualWidthWith(MeasurableView measurableView) {
-        return actualWidth + dividerStep + measurableView.getActualWidth();
+    int getActualWidthWith(CounterView counterView) {
+        return actualWidth + dividerStep + counterView.getActualWidth();
     }
 
     static int getDividerStep() {

@@ -4,7 +4,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.support.annotation.NonNull;
 
-class ClickCounterView extends MeasurableView implements Comparable {
+class ClickCounterView extends CounterView implements Comparable {
 
     // Counter part
     private ClickCounterData clickCounterData;
@@ -35,19 +35,21 @@ class ClickCounterView extends MeasurableView implements Comparable {
     }
 
     @Override
-    public int compareTo(@NonNull Object o) {
-        return clickCounterData.compareTo(((ClickCounterView) o).clickCounterData);
+    int getScaledCounter() {
+        return (int) (clickCounterData.getCounter() * 1000);
     }
 
-    long getCounter() {
-        return clickCounterData.getCounter();
-    }
-
+    @Override
     ClickCounterData getData() {
         return clickCounterData;
     }
 
+    @Override
     void onClick() {
         clickCounterData.increaseCounter();
+    }
+
+    @Override
+    void updateTimes(long time) {
     }
 }

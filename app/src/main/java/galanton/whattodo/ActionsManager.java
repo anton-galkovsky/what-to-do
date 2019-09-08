@@ -10,8 +10,7 @@ import java.util.Collections;
 
 class ActionsManager {
 
-    private ArrayList<ClickCounterView> clickCounterViews;
-    private ArrayList<TimeCounterView> timeCounterViews;
+    private ArrayList<CounterView> counterViews;
     private ArrayList<HorizontalContainer> containers;
     private MainActivity activity;
 
@@ -33,27 +32,21 @@ class ActionsManager {
     }
 
     void addClickCounter(int color) {
-        clickCounterViews.add(new ClickCounterView(new ClickCounterData(color), minViewSide, activity));
+        counterViews.add(new ClickCounterView(new ClickCounterData(color), minViewSide, activity));
         writeActionsToFile();
         updateScreen();
     }
 
     void addTimeCounter(int color) {
-        timeCounterViews.add(new TimeCounterView(new TimeCounterData(color), minViewSide, activity));
+        counterViews.add(new TimeCounterView(new TimeCounterData(color), minViewSide, activity));
         writeActionsToFile();
         updateScreen();
     }
 
     void onClick(View v) {
-        for (TimeCounterView timeCounterView : timeCounterViews) {
-            if (timeCounterView == v) {
-                timeCounterView.onClick();
-                break;
-            }
-        }
-        for (ClickCounterView clickCounterView : clickCounterViews) {
-            if (clickCounterView == v) {
-                clickCounterView.onClick();
+        for (CounterView counterView : counterViews) {
+            if (counterView == v) {
+                counterView.onClick();
                 break;
             }
         }
@@ -61,16 +54,15 @@ class ActionsManager {
     }
 
     void updateTimes(long time) {
-        for (TimeCounterView timeCounterView : timeCounterViews) {
-            timeCounterView.updateTimes(time);
+        for (CounterView counterView : counterViews) {
+            counterView.updateTimes(time);
         }
         writeActionsToFile();
         updateScreen();
     }
 
     private void updateScreen() {
-        Collections.sort(clickCounterViews);
-        Collections.sort(timeCounterViews);
+        Collections.sort(counterViews);
 
         for (LinearLayout container : containers) {
             container.removeAllViews();
@@ -78,40 +70,21 @@ class ActionsManager {
         LinearLayout layout = activity.findViewById(R.id.base_linear_layout);
         layout.removeAllViews();
 
-        for (TimeCounterView timeCounterView : timeCounterViews) {
-            double square = minViewSide * minViewSide + (int) (timeCounterView.getCounter() / 1000.0);
+        for (CounterView counterView : counterViews) {
+            double square = minViewSide * minViewSide + counterView.getScaledCounter();
             if ((int) (square / minViewSide) <= usefulScreenWidth) {
-                timeCounterView.setWidth((int) (square / minViewSide));
-                timeCounterView.setHeight(minViewSide);
+                counterView.setWidth((int) (square / minViewSide));
+                counterView.setHeight(minViewSide);
             } else {
-                timeCounterView.setWidth(usefulScreenWidth);
-                timeCounterView.setHeight((int) (square / usefulScreenWidth));
+                counterView.setWidth(usefulScreenWidth);
+                counterView.setHeight((int) (square / usefulScreenWidth));
             }
             for (int i = 0; ; i++) {
                 if (containers.size() == i) {
                     containers.add(new HorizontalContainer(activity));
                 }
-                if (containers.get(i).getActualWidthWith(timeCounterView) <= screenWidth) {
-                    containers.get(i).addMeasurableView(timeCounterView);
-                    break;
-                }
-            }
-        }
-        for (ClickCounterView clickCounterView : clickCounterViews) {
-            double square = minViewSide * minViewSide + (int) (clickCounterView.getCounter() * 1000);
-            if ((int) (square / minViewSide) <= usefulScreenWidth) {
-                clickCounterView.setWidth((int) (square / minViewSide));
-                clickCounterView.setHeight(minViewSide);
-            } else {
-                clickCounterView.setWidth(usefulScreenWidth);
-                clickCounterView.setHeight((int) (square / usefulScreenWidth));
-            }
-            for (int i = 0; ; i++) {
-                if (containers.size() == i) {
-                    containers.add(new HorizontalContainer(activity));
-                }
-                if (containers.get(i).getActualWidthWith(clickCounterView) <= screenWidth) {
-                    containers.get(i).addMeasurableView(clickCounterView);
+                if (containers.get(i).getActualWidthWith(counterView) <= screenWidth) {
+                    containers.get(i).addMeasurableView(counterView);
                     break;
                 }
             }
@@ -124,37 +97,28 @@ class ActionsManager {
 
     private void writeActionsToFile() {
         try (ObjectOutputStream oos = new ObjectOutputStream(activity.openFileOutput(fileName, Context.MODE_PRIVATE))) {
-            Integer tcsSize = timeCounterViews.size();
-            Integer ccsSize = clickCounterViews.size();
-            oos.writeObject(tcsSize);
-            oos.writeObject(ccsSize);
-            for (TimeCounterView timeCounterView : timeCounterViews) {
-                oos.writeObject(timeCounterView.getData());
+            Integer cvSize = counterViews.size();
+            oos.writeObject(cvSize);
+            for (CounterView counterView : counterViews) {
+                oos.writeObject(counterView.getData());
             }
-            for (ClickCounterView clickCounterView : clickCounterViews) {
-                oos.writeObject(clickCounterView.getData());
-            }
-//            oos.writeObject(timeCounterViews);
-//            oos.writeObject(clickCounterViews);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     private void readActionsFromFile() {
-        timeCounterViews = new ArrayList<>();
-        clickCounterViews = new ArrayList<>();
+        counterViews = new ArrayList<>();
         try (ObjectInputStream ois = new ObjectInputStream(activity.openFileInput(fileName))) {
-            int tcsSize = (Integer) ois.readObject();
-            int ccsSize = (Integer) ois.readObject();
-            for (int i = 0; i < tcsSize; i++) {
-                timeCounterViews.add(new TimeCounterView((TimeCounterData) ois.readObject(), minViewSide, activity));
+            Integer cvSize = (Integer) ois.readObject();
+            for (int i = 0; i < cvSize; i++) {
+                Object obj = ois.readObject();
+                if (obj instanceof TimeCounterData) {
+                    counterViews.add(new TimeCounterView((TimeCounterData) obj, minViewSide, activity));
+                } else if (obj instanceof ClickCounterData) {
+                    counterViews.add(new ClickCounterView((ClickCounterData) obj, minViewSide, activity));
+                }
             }
-            for (int i = 0; i < ccsSize; i++) {
-                clickCounterViews.add(new ClickCounterView((ClickCounterData) ois.readObject(), minViewSide, activity));
-            }
-//            timeCounterViews = (ArrayList<TimeCounterView>) ois.readObject();
-//            clickCounterViews = (ArrayList<ClickCounterView>) ois.readObject();
         } catch (Exception e) {
             e.printStackTrace();
         }

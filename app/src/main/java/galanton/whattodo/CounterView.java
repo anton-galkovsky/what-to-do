@@ -1,14 +1,23 @@
 package galanton.whattodo;
 
 import android.content.Context;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.support.annotation.NonNull;
 
-abstract class MeasurableView extends android.support.v7.widget.AppCompatButton {
+import java.io.Serializable;
+
+abstract class CounterView extends android.support.v7.widget.AppCompatButton implements Serializable, Comparable {
 
     private int actualWidth;
-    private int actualHeight;
 
-    MeasurableView(int minViewSide, Context context) {
+    abstract protected void onDraw(Canvas canvas);
+    abstract int getScaledCounter();
+    abstract Object getData();
+    abstract void onClick();
+    abstract void updateTimes(long time);
+
+    CounterView(int minViewSide, Context context) {
         super(context);
 
         setMinWidth(minViewSide);
@@ -16,7 +25,6 @@ abstract class MeasurableView extends android.support.v7.widget.AppCompatButton 
         setMinHeight(minViewSide);
         setMinimumHeight(minViewSide);
         actualWidth = 0;
-        actualHeight = 0;
     }
 
     @Override
@@ -26,9 +34,8 @@ abstract class MeasurableView extends android.support.v7.widget.AppCompatButton 
     }
 
     @Override
-    public void setHeight(int pixels) {
-        super.setHeight(pixels);
-        actualHeight = pixels;
+    public int compareTo(@NonNull Object o) {
+        return ((CounterView) o).getScaledCounter() - getScaledCounter();
     }
 
     int getActualWidth() {
@@ -40,4 +47,5 @@ abstract class MeasurableView extends android.support.v7.widget.AppCompatButton 
                 255 - Color.green(color),
                 255 - Color.blue(color));
     }
+
 }
