@@ -7,7 +7,7 @@ import android.widget.LinearLayout;
 public class HorizontalContainer extends LinearLayout {
 
     private int actualWidth;
-    private int dividerStep;
+    private static int dividerStep;
 
     public HorizontalContainer(Context context) {
         super(context);
@@ -25,12 +25,16 @@ public class HorizontalContainer extends LinearLayout {
         actualWidth = dividerStep;
     }
 
-    void addActionView(ActionView actionView) {
-        super.addView(actionView);
-        actualWidth = getActualWidthWith(actionView);
+    void addMeasurableView(MeasurableView measurableView) {
+        super.addView(measurableView);
+        actualWidth = getActualWidthWith(measurableView);
     }
 
-    int getActualWidthWith(ActionView actionView) {
-        return actualWidth + dividerStep + actionView.getActualWidth();
+    int getActualWidthWith(MeasurableView measurableView) {
+        return actualWidth + dividerStep + measurableView.getActualWidth();
+    }
+
+    static int getDividerStep() {
+        return dividerStep;
     }
 }

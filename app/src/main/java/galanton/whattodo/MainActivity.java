@@ -16,7 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
     private ActionsManager actionsManager;
     private final int callbackInterval = 1000;
@@ -26,7 +26,6 @@ public class MainActivity extends AppCompatActivity
         public void run() {
             try {
                 actionsManager.updateTimes(System.currentTimeMillis());
-//                Log.d("aaaaaaaaaaaaa", "run");
             } finally {
                 callbackHandler.postDelayed(periodicCallback, callbackInterval);
             }
@@ -80,7 +79,13 @@ public class MainActivity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 123) {
             if (resultCode == 1) {
-                actionsManager.addAction(data.getIntExtra("color", 0));
+                String type = data.getStringExtra("type");
+                int color = data.getIntExtra("color", 0);
+                if (type.equals("time")) {
+                    actionsManager.addTimeCounter(color);
+                } else if (type.equals("click")) {
+                    actionsManager.addClickCounter(color);
+                }
             }
         }
     }
@@ -118,5 +123,10 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void onClick(View v) {
+        actionsManager.onClick(v);
     }
 }

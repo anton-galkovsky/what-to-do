@@ -8,6 +8,8 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 
 public class ActionParamsActivity extends AppCompatActivity implements View.OnClickListener, TextWatcher {
 
@@ -29,8 +31,15 @@ public class ActionParamsActivity extends AppCompatActivity implements View.OnCl
             finish();
         } else if (v.getId() == R.id.button_ok) {
             try {
-                intent.putExtra("color", Color.parseColor(
-                        "#" + ((EditText) findViewById(R.id.edit_color)).getText()));
+                String color = "#" + ((EditText) findViewById(R.id.edit_color)).getText();
+                intent.putExtra("color", Color.parseColor(color));
+
+                int id = ((RadioGroup) findViewById(R.id.radio_group)).getCheckedRadioButtonId();
+                if (id == R.id.radio_button_time) {
+                    intent.putExtra("type", "time");
+                } else if (id == R.id.radio_button_click) {
+                    intent.putExtra("type", "click");
+                }
                 setResult(1, intent);
             } catch (Exception ignored) {
                 setResult(0, intent);

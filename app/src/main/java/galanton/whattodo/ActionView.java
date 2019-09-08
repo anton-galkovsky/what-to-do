@@ -103,12 +103,8 @@ public class ActionView extends android.support.v7.widget.AppCompatButton implem
         return (int) (((ActionView) o).allTime - allTime);
     }
 
-    public long getLastUpdateTime() {
+    long getLastUpdateTime() {
         return lastUpdateTime;
-    }
-
-    public void setLastUpdateTime(long lastUpdateTime) {
-        this.lastUpdateTime = lastUpdateTime;
     }
 
     void updateTimes(long time) {

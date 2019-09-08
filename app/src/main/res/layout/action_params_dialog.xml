@@ -6,7 +6,8 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:gravity="center">
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -21,8 +22,30 @@
                 android:id="@+id/edit_color"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:hint="000000"/>
+                android:hint="000000"
+                android:textSize="20sp"/>
         </LinearLayout>
+        <RadioGroup
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/radio_group"
+            android:orientation="vertical">
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="Time"
+                android:textSize="15sp"
+                android:id="@+id/radio_button_time"
+                android:checked="true"/>
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="Click"
+                android:textSize="15sp"
+                android:id="@+id/radio_button_click"/>
+        </RadioGroup>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -43,7 +66,6 @@
                 style="?android:attr/buttonBarButtonStyle"
                 android:layout_weight="1"/>
         </LinearLayout>
-
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

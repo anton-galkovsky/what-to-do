@@ -24,7 +24,7 @@
         <activity
             android:name=".ActionParamsActivity"
             android:theme="@style/Theme.AppCompat.Dialog"
-            android:label="Color"/>
+            android:label="Parameters"/>
 
     </application>
 
