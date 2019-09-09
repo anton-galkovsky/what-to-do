@@ -1,6 +1,7 @@
 package galanton.whattodo;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.View;
 import android.widget.LinearLayout;
 
@@ -21,6 +22,7 @@ class ActionsManager {
 
     ActionsManager(int screenWidth, int screenHeight, String fileName, MainActivity activity) {
         this.screenWidth = screenWidth;
+        new HorizontalContainer(activity);  // initializing divider step
         usefulScreenWidth = screenWidth - 2 * HorizontalContainer.getDividerStep();
         this.activity = activity;
         this.fileName = fileName;
@@ -43,6 +45,21 @@ class ActionsManager {
         updateScreen();
     }
 
+    void deleteCounter(View v) {
+        counterViews.remove((CounterView) v);
+        writeActionsToFile();
+        updateScreen();
+    }
+
+    void adjustCounter(View v, int color, long counter, boolean newColor) {
+        ((CounterView) v).setCounter(counter);
+        if (newColor) {
+            ((CounterView) v).setColor(color);
+        }
+        writeActionsToFile();
+        updateScreen();
+    }
+
     void onClick(View v) {
         for (CounterView counterView : counterViews) {
             if (counterView == v) {
@@ -50,6 +67,7 @@ class ActionsManager {
                 break;
             }
         }
+        writeActionsToFile();
         updateScreen();
     }
 
@@ -122,5 +140,9 @@ class ActionsManager {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    void putExtras(Intent intent, View v) {
+        ((CounterView) v).putExtras(intent);
     }
 }

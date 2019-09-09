@@ -22,7 +22,12 @@
         </activity>
 
         <activity
-            android:name=".ActionParamsActivity"
+            android:name=".NewActionParamsActivity"
+            android:theme="@style/Theme.AppCompat.Dialog"
+            android:label="Parameters"/>
+
+        <activity
+            android:name=".AdjustActionParamsActivity"
             android:theme="@style/Theme.AppCompat.Dialog"
             android:label="Parameters"/>
 

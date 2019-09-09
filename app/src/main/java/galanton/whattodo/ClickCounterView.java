@@ -1,10 +1,10 @@
 package galanton.whattodo;
 
+import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.support.annotation.NonNull;
 
-class ClickCounterView extends CounterView implements Comparable {
+class ClickCounterView extends CounterView {
 
     // Counter part
     private ClickCounterData clickCounterData;
@@ -24,8 +24,6 @@ class ClickCounterView extends CounterView implements Comparable {
         textPaint = new Paint();
         textPaint.setColor(negativeColor(clickCounterData.getColor()));
         textPaint.setTextSize(100);
-
-        setOnClickListener(activity);
     }
 
     @Override
@@ -51,5 +49,24 @@ class ClickCounterView extends CounterView implements Comparable {
 
     @Override
     void updateTimes(long time) {
+    }
+
+    @Override
+    void putExtras(Intent intent) {
+        intent.putExtra("type", "click");
+        intent.putExtra("color", clickCounterData.getColor());
+        intent.putExtra("counter", clickCounterData.getCounter());
+    }
+
+    @Override
+    void setCounter(long counter) {
+        clickCounterData.setCounter(counter);
+    }
+
+    @Override
+    void setColor(int color) {
+        clickCounterData.setColor(color);
+        fillPaint.setColor(color);
+        textPaint.setColor(negativeColor(color));
     }
 }

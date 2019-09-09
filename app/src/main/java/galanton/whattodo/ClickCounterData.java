@@ -20,11 +20,15 @@ class ClickCounterData implements Serializable {
         return counter;
     }
 
-    int compareTo(ClickCounterData o) {
-        return (int) (o.counter - counter);
-    }
-
     void increaseCounter() {
         counter++;
+    }
+
+    void setCounter(long counter) {
+        this.counter = counter;
+    }
+
+    void setColor(int color) {
+        this.color = color;
     }
 }

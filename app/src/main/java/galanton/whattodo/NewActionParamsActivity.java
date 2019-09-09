@@ -8,15 +8,14 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
-public class ActionParamsActivity extends AppCompatActivity implements View.OnClickListener, TextWatcher {
+public class NewActionParamsActivity extends AppCompatActivity implements View.OnClickListener, TextWatcher {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.action_params_dialog);
+        setContentView(R.layout.new_action_params_dialog);
         findViewById(R.id.button_cancel).setOnClickListener(this);
         findViewById(R.id.button_ok).setOnClickListener(this);
 
@@ -28,24 +27,23 @@ public class ActionParamsActivity extends AppCompatActivity implements View.OnCl
         Intent intent = new Intent();
         if (v.getId() == R.id.button_cancel) {
             setResult(0, intent);
-            finish();
         } else if (v.getId() == R.id.button_ok) {
+            int color = Color.BLACK;
             try {
-                String color = "#" + ((EditText) findViewById(R.id.edit_color)).getText();
-                intent.putExtra("color", Color.parseColor(color));
-
-                int id = ((RadioGroup) findViewById(R.id.radio_group)).getCheckedRadioButtonId();
-                if (id == R.id.radio_button_time) {
-                    intent.putExtra("type", "time");
-                } else if (id == R.id.radio_button_click) {
-                    intent.putExtra("type", "click");
-                }
-                setResult(1, intent);
+                color = Color.parseColor("#" + ((EditText) findViewById(R.id.edit_color)).getText());
             } catch (Exception ignored) {
-                setResult(0, intent);
             }
-            finish();
+            intent.putExtra("color", color);
+
+            int id = ((RadioGroup) findViewById(R.id.radio_group)).getCheckedRadioButtonId();
+            if (id == R.id.radio_button_time) {
+                intent.putExtra("type", "time");
+            } else if (id == R.id.radio_button_click) {
+                intent.putExtra("type", "click");
+            }
+            setResult(1, intent);
         }
+        finish();
     }
 
     @Override

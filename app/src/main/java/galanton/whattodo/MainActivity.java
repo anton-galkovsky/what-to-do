@@ -10,15 +10,15 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
+        implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, View.OnLongClickListener {
 
     private ActionsManager actionsManager;
+    private View processedView;
     private final int callbackInterval = 1000;
     private Handler callbackHandler;
     private Runnable periodicCallback = new Runnable() {
@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
         actionsManager = new ActionsManager(dm.widthPixels, dm.heightPixels, "dataFile", this);
+        processedView = null;
         callbackHandler = new Handler();
         periodicCallback.run();
     }
@@ -70,9 +71,18 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_add) {
-            startActivityForResult(new Intent(this, ActionParamsActivity.class), 123);
+            startActivityForResult(new Intent(this, NewActionParamsActivity.class), 123);
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onLongClick(View v) {
+        Intent intent = new Intent(this, AdjustActionParamsActivity.class);
+        actionsManager.putExtras(intent, v);
+        processedView = v;
+        startActivityForResult(intent, 234);
+        return true;
     }
 
     @Override
@@ -87,6 +97,16 @@ public class MainActivity extends AppCompatActivity
                     actionsManager.addClickCounter(color);
                 }
             }
+        } else if (requestCode == 234) {
+            if (resultCode == 1) {
+                actionsManager.deleteCounter(processedView);
+            } else if (resultCode == 2) {
+                int color = data.getIntExtra("color", 0);
+                long counter = data.getLongExtra("counter", 0);
+                boolean newColor = data.getBooleanExtra("newColor", false);
+                actionsManager.adjustCounter(processedView, color, counter, newColor);
+            }
+            processedView = null;
         }
     }
 

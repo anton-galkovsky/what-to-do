@@ -42,7 +42,11 @@ class TimeCounterData implements Serializable {
         }
     }
 
-    int compareTo(TimeCounterData o) {
-        return (int) (o.counter - counter);
+    void setCounter(long counter) {
+        this.counter = counter;
+    }
+
+    void setColor(int color) {
+        this.color = color;
     }
 }
