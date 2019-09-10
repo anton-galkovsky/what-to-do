@@ -3,38 +3,39 @@ package galanton.whattodo;
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.support.annotation.NonNull;
 
 class TimeCounterView extends CounterView {
 
-    // Counter part
-    private TimeCounterData timeCounterData;
+    private int color;
+    private long counter;
+    private boolean running;
 
-    // View part
     private Paint fillPaint;
     private Paint strokePaint;
     private Paint textPaint;
 
-    TimeCounterView(TimeCounterData timeCounterData, int minViewSide, MainActivity activity) {
-        super(minViewSide, activity);
+    TimeCounterView(int counterViewId, TimeCounterData timeCounterData, int minViewSide, MainActivity activity) {
+        super(counterViewId, minViewSide, activity);
 
-        this.timeCounterData = timeCounterData;                     // or copy constructor???
+        color = timeCounterData.getColor();
+        counter = timeCounterData.getCounter();
+        running = timeCounterData.isRunning();
 
         fillPaint = new Paint();
-        fillPaint.setColor(timeCounterData.getColor());
+        fillPaint.setColor(color);
         fillPaint.setStyle(Paint.Style.FILL);
         strokePaint = new Paint();
-        strokePaint.setColor(negativeColor(timeCounterData.getColor()));
+        strokePaint.setColor(negativeColor(color));
         strokePaint.setStyle(Paint.Style.FILL);
         textPaint = new Paint();
-        textPaint.setColor(negativeColor(timeCounterData.getColor()));
+        textPaint.setColor(negativeColor(color));
         textPaint.setTextSize(70);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         canvas.drawRect(0, 0, getWidth(), getHeight(), fillPaint);
-        if (timeCounterData.isRunning()) {
+        if (running) {
             int step = 20;
             for (int i = 0; i - step < getWidth(); i += step) {
                 for (int j = 0; j - step < getHeight(); j += step) {
@@ -42,46 +43,23 @@ class TimeCounterView extends CounterView {
                 }
             }
         }
-        canvas.drawText("" + timeCounterData.getCounter() / 1000, 0, 70, textPaint);
+        canvas.drawText("" + counter / 1000, 0, 70, textPaint);
     }
 
     @Override
     int getScaledCounter() {
-        return (int) (timeCounterData.getCounter() / 1000);
+        return (int) (counter / 1000);
     }
 
     @Override
-    TimeCounterData getData() {
-        return timeCounterData;
-    }
-
-    @Override
-    void onClick() {
-        timeCounterData.changeRunning();
-    }
-
-    @Override
-    void updateTimes(long time) {
-        timeCounterData.updateTimes(time);
-    }
-
-    @Override
-    void putExtras(Intent intent) {
-        intent.putExtra("type", "time");
-        intent.putExtra("color", timeCounterData.getColor());
-        intent.putExtra("counter", timeCounterData.getCounter());
-    }
-
-    @Override
-    void setCounter(long counter) {
-        timeCounterData.setCounter(counter);
-    }
-
-    @Override
-    void setColor(int color) {
-        timeCounterData.setColor(color);
-        fillPaint.setColor(color);
-        strokePaint.setColor(negativeColor(color));
-        textPaint.setColor(negativeColor(color));
+    void adjustParams(CounterData counterData) {
+        if (counterData.getColor() != color) {
+            color = counterData.getColor();
+            fillPaint.setColor(color);
+            strokePaint.setColor(negativeColor(color));
+            textPaint.setColor(negativeColor(color));
+        }
+        counter = counterData.getCounter();
+        running = ((TimeCounterData) counterData).isRunning();
     }
 }

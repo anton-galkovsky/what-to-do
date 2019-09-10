@@ -17,7 +17,7 @@ import android.view.View;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, View.OnLongClickListener {
 
-    private ActionsManager actionsManager;
+    private ProcessManager processManager;
     private View processedView;
     private final int callbackInterval = 1000;
     private Handler callbackHandler;
@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity
         @Override
         public void run() {
             try {
-                actionsManager.updateTimes(System.currentTimeMillis());
+                processManager.updateTimes(System.currentTimeMillis());
             } finally {
                 callbackHandler.postDelayed(periodicCallback, callbackInterval);
             }
@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity
 
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
-        actionsManager = new ActionsManager(dm.widthPixels, dm.heightPixels, "dataFile", this);
+        processManager = new ProcessManager(dm.widthPixels, dm.heightPixels, "dataFile", this);
         processedView = null;
         callbackHandler = new Handler();
         periodicCallback.run();
@@ -77,10 +77,10 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public boolean onLongClick(View v) {
+    public boolean onLongClick(View view) {
         Intent intent = new Intent(this, AdjustActionParamsActivity.class);
-        actionsManager.putExtras(intent, v);
-        processedView = v;
+        processManager.putExtras(intent, view);
+        processedView = view;
         startActivityForResult(intent, 234);
         return true;
     }
@@ -92,19 +92,19 @@ public class MainActivity extends AppCompatActivity
                 String type = data.getStringExtra("type");
                 int color = data.getIntExtra("color", 0);
                 if (type.equals("time")) {
-                    actionsManager.addTimeCounter(color);
+                    processManager.addTimeCounter(color);
                 } else if (type.equals("click")) {
-                    actionsManager.addClickCounter(color);
+                    processManager.addClickCounter(color);
                 }
             }
         } else if (requestCode == 234) {
             if (resultCode == 1) {
-                actionsManager.deleteCounter(processedView);
+                processManager.deleteCounter(processedView);
             } else if (resultCode == 2) {
                 int color = data.getIntExtra("color", 0);
                 long counter = data.getLongExtra("counter", 0);
                 boolean newColor = data.getBooleanExtra("newColor", false);
-                actionsManager.adjustCounter(processedView, color, counter, newColor);
+                processManager.adjustCounter(processedView, color, counter, newColor);
             }
             processedView = null;
         }
@@ -146,7 +146,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onClick(View v) {
-        actionsManager.onClick(v);
+    public void onClick(View view) {
+        processManager.onClick(view, System.currentTimeMillis());
     }
 }

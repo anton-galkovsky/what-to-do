@@ -1,8 +1,10 @@
 package galanton.whattodo;
 
+import android.content.Intent;
+
 import java.io.Serializable;
 
-class TimeCounterData implements Serializable {
+class TimeCounterData implements Serializable, CounterData {
 
     private long counter;
     private int color;
@@ -12,41 +14,49 @@ class TimeCounterData implements Serializable {
     TimeCounterData(int color) {
         counter = 0;
         this.color = color;
-    }
-
-    void changeRunning() {
-        long time = System.currentTimeMillis();
-        if (running) {
-            counter += time - lastUpdateTime;
-        }
-        lastUpdateTime = time;
-        running = !running;
+        lastUpdateTime = -1;
     }
 
     boolean isRunning() {
         return running;
     }
 
-    long getCounter() {
+    public long getCounter() {
         return counter;
     }
 
-    int getColor() {
+    public int getColor() {
         return color;
     }
 
-    void updateTimes(long time) {
-        if (running) {
-            counter += time - lastUpdateTime;
+    public void updateTimes(long time) {
+        if (lastUpdateTime == -1) {
             lastUpdateTime = time;
         }
+        if (running) {
+            counter += time - lastUpdateTime;
+        }
+        lastUpdateTime = time;
     }
 
-    void setCounter(long counter) {
+    @Override
+    public void adjustParams(int color, long counter, boolean newColor) {
+        if (newColor) {
+            this.color = color;
+        }
         this.counter = counter;
     }
 
-    void setColor(int color) {
-        this.color = color;
+    @Override
+    public void onClick(long time) {
+        updateTimes(time);
+        running = !running;
+    }
+
+    @Override
+    public void putExtras(Intent intent) {
+        intent.putExtra("type", "time");
+        intent.putExtra("counter", counter);
+        intent.putExtra("color", color);
     }
 }

@@ -1,8 +1,10 @@
 package galanton.whattodo;
 
+import android.content.Intent;
+
 import java.io.Serializable;
 
-class ClickCounterData implements Serializable {
+class ClickCounterData implements Serializable, CounterData {
 
     private long counter;
     private int color;
@@ -12,23 +14,35 @@ class ClickCounterData implements Serializable {
         this.color = color;
     }
 
-    int getColor() {
+    public int getColor() {
         return color;
     }
 
-    long getCounter() {
+    public long getCounter() {
         return counter;
     }
 
-    void increaseCounter() {
-        counter++;
-    }
-
-    void setCounter(long counter) {
+    @Override
+    public void adjustParams(int color, long counter, boolean newColor) {
+        if (newColor) {
+            this.color = color;
+        }
         this.counter = counter;
     }
 
-    void setColor(int color) {
-        this.color = color;
+    @Override
+    public void onClick(long time) {
+        counter++;
+    }
+
+    @Override
+    public void updateTimes(long time) {
+    }
+
+    @Override
+    public void putExtras(Intent intent) {
+        intent.putExtra("type", "click");
+        intent.putExtra("counter", counter);
+        intent.putExtra("color", color);
     }
 }

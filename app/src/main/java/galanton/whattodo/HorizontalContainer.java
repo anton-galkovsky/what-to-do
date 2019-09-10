@@ -7,16 +7,18 @@ import android.widget.LinearLayout;
 public class HorizontalContainer extends LinearLayout {
 
     private int actualWidth;
-    private static int dividerStep;
+    private int dividerStep;
 
     public HorizontalContainer(Context context) {
         super(context);
-        actualWidth = 0;
-        setOrientation(LinearLayout.HORIZONTAL);
+
         Drawable divider = context.getResources().getDrawable(R.drawable.empty_divider);
         setDividerDrawable(divider);
         setShowDividers(LinearLayout.SHOW_DIVIDER_MIDDLE);
         dividerStep = divider.getMinimumWidth();
+
+        actualWidth = dividerStep;
+        setOrientation(LinearLayout.HORIZONTAL);
     }
 
     @Override
@@ -34,7 +36,11 @@ public class HorizontalContainer extends LinearLayout {
         return actualWidth + dividerStep + counterView.getActualWidth();
     }
 
-    static int getDividerStep() {
+    int getActualWidth() {
+        return actualWidth;
+    }
+
+    int getDividerStep() {
         return dividerStep;
     }
 }
