@@ -6,6 +6,8 @@ import java.io.Serializable;
 
 class TimeCounterData implements Serializable, CounterData {
 
+    static final long serialVersionUID = -7424958886620172413L;
+
     private long counter;
     private int color;
     private long lastUpdateTime;

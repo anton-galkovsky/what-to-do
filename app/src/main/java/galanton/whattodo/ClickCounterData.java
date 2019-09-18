@@ -6,6 +6,8 @@ import java.io.Serializable;
 
 class ClickCounterData implements Serializable, CounterData {
 
+    static final long serialVersionUID = -4476545837915515477L;
+
     private long counter;
     private int color;
 

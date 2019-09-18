@@ -1,8 +1,8 @@
 package galanton.whattodo;
 
-import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 
 class TimeCounterView extends CounterView {
 
@@ -29,7 +29,7 @@ class TimeCounterView extends CounterView {
         strokePaint.setStyle(Paint.Style.FILL);
         textPaint = new Paint();
         textPaint.setColor(negativeColor(color));
-        textPaint.setTextSize(70);
+        textPaint.setTypeface(Typeface.create("monospace", Typeface.NORMAL));
     }
 
     @Override
@@ -43,7 +43,11 @@ class TimeCounterView extends CounterView {
                 }
             }
         }
-        canvas.drawText("" + counter / 1000, 0, 70, textPaint);
+
+        String text = timeFormat(counter / 1000);
+        float textSize = Math.min(1.5f * getActualWidth() / text.length(), 70);
+        textPaint.setTextSize(textSize);
+        canvas.drawText(text, textSize / 6, getActualHeight() / 2.0f + textSize / 3, textPaint);
     }
 
     @Override
@@ -61,5 +65,18 @@ class TimeCounterView extends CounterView {
         }
         counter = counterData.getCounter();
         running = ((TimeCounterData) counterData).isRunning();
+    }
+
+    private String timeFormat(long seconds) {
+        if (seconds < 60) {
+            return "" + seconds;
+        }
+        if (seconds < 20000) {   // or < 3600
+            long secs = seconds % 60;
+            return seconds / 60 + ":" + secs / 10 + "" + secs % 10;
+        }
+        long mins = seconds % 3600 / 60;
+        long secs = seconds % 60;
+        return seconds / 3600 + ":" + mins / 10 + "" + mins % 10 + ":" + secs / 10 + "" + secs % 10;
     }
 }

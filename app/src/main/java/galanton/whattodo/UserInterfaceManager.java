@@ -76,7 +76,7 @@ class UserInterfaceManager {
         sortViews();
 
         for (CounterView counterView : counterViews) {
-            double square = minViewSide * minViewSide + counterView.getScaledCounter();
+            double square = Math.max(minViewSide * minViewSide, counterView.getScaledCounter());
             if ((int) (square / minViewSide) <= usefulScreenWidth) {
                 counterView.setWidth((int) (square / minViewSide));
                 counterView.setHeight(minViewSide);
