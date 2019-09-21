@@ -1,6 +1,7 @@
 package galanton.whattodo;
 
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -77,13 +78,16 @@ class UserInterfaceManager {
 
         for (CounterView counterView : counterViews) {
             double square = Math.max(minViewSide * minViewSide, counterView.getScaledCounter());
+            int newWidth, newHeight;
             if ((int) (square / minViewSide) <= usefulScreenWidth) {
-                counterView.setWidth((int) (square / minViewSide));
-                counterView.setHeight(minViewSide);
+                newWidth = (int) (square / minViewSide);
+                newHeight = minViewSide;
             } else {
-                counterView.setWidth(usefulScreenWidth);
-                counterView.setHeight((int) (square / usefulScreenWidth));
+                newWidth = usefulScreenWidth;
+                newHeight = (int) (square / usefulScreenWidth);
             }
+            counterView.setWidth(newWidth);
+            counterView.setHeight(newHeight);
         }
 
         for (HorizontalContainer container : containers) {
@@ -94,10 +98,10 @@ class UserInterfaceManager {
         }
 
         if (needRegroup) {
+            needRegroup = false;
             regroupViews();
+            activity.findViewById(R.id.base_linear_layout).invalidate();
         }
-
-        activity.findViewById(R.id.base_linear_layout).invalidate();
     }
 
     private void regroupViews() {

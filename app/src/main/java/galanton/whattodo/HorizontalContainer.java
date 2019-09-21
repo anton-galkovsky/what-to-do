@@ -4,9 +4,11 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.widget.LinearLayout;
 
+import java.util.ArrayList;
+
 public class HorizontalContainer extends LinearLayout {
 
-    private int actualWidth;
+    private ArrayList<MeasurableView> views;
     private int dividerStep;
 
     public HorizontalContainer(Context context) {
@@ -17,27 +19,32 @@ public class HorizontalContainer extends LinearLayout {
         setShowDividers(LinearLayout.SHOW_DIVIDER_MIDDLE);
         dividerStep = divider.getMinimumWidth();
 
-        actualWidth = dividerStep;
         setOrientation(LinearLayout.HORIZONTAL);
+
+        views = new ArrayList<>();
     }
 
     @Override
     public void removeAllViews() {
         super.removeAllViews();
-        actualWidth = dividerStep;
+        views.clear();
     }
 
-    void addMeasurableView(CounterView counterView) {
-        super.addView(counterView);
-        actualWidth = getActualWidthWith(counterView);
+    void addMeasurableView(MeasurableView view) {
+        super.addView(view);
+        views.add(view);
     }
 
-    int getActualWidthWith(CounterView counterView) {
-        return actualWidth + dividerStep + counterView.getActualWidth();
+    int getActualWidthWith(MeasurableView view) {
+        return getActualWidth() + dividerStep + view.getActualWidth();
     }
 
     int getActualWidth() {
-        return actualWidth;
+        int width = dividerStep;
+        for (MeasurableView view : views) {
+            width += view.getActualWidth() + dividerStep;
+        }
+        return width;
     }
 
     int getDividerStep() {
