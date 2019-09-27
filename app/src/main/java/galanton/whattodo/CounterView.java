@@ -2,15 +2,16 @@ package galanton.whattodo;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.support.annotation.NonNull;
+import android.os.Bundle;
 
-abstract class CounterView extends MeasurableView implements Comparable {
+abstract class CounterView extends MeasurableView {
 
     private int counterViewId;
+    private static String counterSource;
 
     abstract protected void onDraw(Canvas canvas);
     abstract int getScaledCounter();
-    abstract void adjustParams(CounterData counterData);
+    abstract void adjustParams(Bundle counterDataExtras);
 
     CounterView(int counterViewId, int minViewSide, MainActivity activity) {
         super(minViewSide, activity);
@@ -21,11 +22,6 @@ abstract class CounterView extends MeasurableView implements Comparable {
         setOnLongClickListener(activity);
     }
 
-    @Override
-    public int compareTo(@NonNull Object o) {
-        return ((CounterView) o).getScaledCounter() - getScaledCounter();
-    }
-
     int negativeColor(int color) {
         return Color.rgb(255 - Color.red(color),
                 255 - Color.green(color),
@@ -34,5 +30,13 @@ abstract class CounterView extends MeasurableView implements Comparable {
 
     int getCounterViewId() {
         return counterViewId;
+    }
+
+    static String getCounterSource() {
+        return counterSource;
+    }
+
+    static void setCounterSource(String counterSource) {
+        CounterView.counterSource = counterSource;
     }
 }

@@ -8,24 +8,26 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 
 public class AdjustActionParamsActivity extends AppCompatActivity implements View.OnClickListener, TextWatcher {
+
+    private int oldColor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.change_action_params_dialog);
+        setContentView(R.layout.adjust_action_params_dialog);
         findViewById(R.id.button_cancel).setOnClickListener(this);
         findViewById(R.id.button_delete).setOnClickListener(this);
         findViewById(R.id.button_ok).setOnClickListener(this);
 
-        EditText edit_color = findViewById(R.id.edit_color);
-        edit_color.addTextChangedListener(this);
-        EditText edit_counter = findViewById(R.id.edit_counter);
+        ((EditText) findViewById(R.id.edit_color)).addTextChangedListener(this);
 
         Intent intent = getIntent();
-        findViewById(R.id.image_color).setBackgroundColor(intent.getIntExtra("color", 0));
-        edit_counter.setText("" + intent.getLongExtra("counter", 0));
+        oldColor = intent.getIntExtra("color", 0);
+        findViewById(R.id.image_color).setBackgroundColor(oldColor);
+        ((TextView) findViewById(R.id.text_counter)).setText("" + intent.getLongExtra("counter", 0));
     }
 
     @Override
@@ -37,10 +39,8 @@ public class AdjustActionParamsActivity extends AppCompatActivity implements Vie
             setResult(1, intent);
         } else if (v.getId() == R.id.button_ok) {
             int color = Color.BLACK;
-            long counter = 0;
             boolean newColor = false;
             try {
-                counter = Long.valueOf("" + ((EditText) findViewById(R.id.edit_counter)).getText());   // do not swap lines
                 String colorStr = "#" + ((EditText) findViewById(R.id.edit_color)).getText();
                 if (colorStr.length() == 7) {
                     color = Color.parseColor(colorStr);
@@ -48,9 +48,19 @@ public class AdjustActionParamsActivity extends AppCompatActivity implements Vie
                 }
             } catch (Exception ignored) {
             }
-            intent.putExtra("color", color);
-            intent.putExtra("newColor", newColor);
-            intent.putExtra("counter", counter);
+
+            long counterInc = 0;
+            try {
+                counterInc = Long.valueOf("" + ((EditText) findViewById(R.id.inc_counter)).getText());
+            } catch (Exception ignored) {
+            }
+
+            if (newColor) {
+                intent.putExtra("color", color);
+            } else {
+                intent.putExtra("color", oldColor);
+            }
+            intent.putExtra("counter_inc", counterInc);
 
             setResult(2, intent);
         }

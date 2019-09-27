@@ -1,6 +1,6 @@
 package galanton.whattodo;
 
-import android.content.Intent;
+import android.os.Bundle;
 
 import java.io.Serializable;
 
@@ -9,32 +9,31 @@ class ClickCounterData implements Serializable, CounterData {
     static final long serialVersionUID = -4476545837915515477L;
 
     private long counter;
+    private long todayCounter;
     private int color;
 
     ClickCounterData(int color) {
         counter = 0;
+        todayCounter = 0;
         this.color = color;
     }
 
-    public int getColor() {
-        return color;
-    }
-
-    public long getCounter() {
-        return counter;
-    }
-
     @Override
-    public void adjustParams(int color, long counter, boolean newColor) {
-        if (newColor) {
-            this.color = color;
-        }
-        this.counter = counter;
+    public void adjustParams(int color, long counterInc) {
+        this.color = color;
+        todayCounter += counterInc;
+        counter += counterInc;
     }
 
     @Override
     public void onClick(long time) {
         counter++;
+        todayCounter++;
+    }
+
+    @Override
+    public void onSync() {
+        todayCounter = 0;
     }
 
     @Override
@@ -42,9 +41,12 @@ class ClickCounterData implements Serializable, CounterData {
     }
 
     @Override
-    public void putExtras(Intent intent) {
-        intent.putExtra("type", "click");
-        intent.putExtra("counter", counter);
-        intent.putExtra("color", color);
+    public Bundle getExtras() {
+        Bundle bundle = new Bundle();
+        bundle.putString("type", "click");
+        bundle.putLong(ScreenType.ALL_TIME.value, counter);
+        bundle.putLong(ScreenType.DAY.value, todayCounter);
+        bundle.putInt("color", color);
+        return bundle;
     }
 }

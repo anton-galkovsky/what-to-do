@@ -1,15 +1,13 @@
 package galanton.whattodo;
 
-import android.content.Intent;
+import android.os.Bundle;
 
 interface CounterData {
 
-    long getCounter();
-    int getColor();
-
-    void adjustParams(int color, long counter, boolean newColor);
+    void adjustParams(int color, long counterInc);
     void onClick(long time);
     void updateTimes(long time);
+    void onSync();
 
-    void putExtras(Intent intent);
+    Bundle getExtras();
 }

@@ -3,6 +3,7 @@ package galanton.whattodo;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+import android.os.Bundle;
 
 class ClickCounterView extends CounterView {
 
@@ -12,17 +13,17 @@ class ClickCounterView extends CounterView {
     private Paint fillPaint;
     private Paint textPaint;
 
-    ClickCounterView(int counterViewId, ClickCounterData clickCounterData, int minViewSide, MainActivity activity) {
+    ClickCounterView(int counterViewId, Bundle clickCounterDataExtras, int minViewSide, MainActivity activity) {
         super(counterViewId, minViewSide, activity);
 
-        color = clickCounterData.getColor();
-        counter = clickCounterData.getCounter();
+        color = clickCounterDataExtras.getInt("color");
+        counter = clickCounterDataExtras.getLong("counter");
 
         fillPaint = new Paint();
-        fillPaint.setColor(clickCounterData.getColor());
+        fillPaint.setColor(color);
         fillPaint.setStyle(Paint.Style.FILL);
         textPaint = new Paint();
-        textPaint.setColor(negativeColor(clickCounterData.getColor()));
+        textPaint.setColor(negativeColor(color));
         textPaint.setTextSize(100);
         textPaint.setTypeface(Typeface.create("monospace", Typeface.NORMAL));
     }
@@ -43,12 +44,13 @@ class ClickCounterView extends CounterView {
     }
 
     @Override
-    void adjustParams(CounterData counterData) {
-        if (counterData.getColor() != color) {
-            color = counterData.getColor();
+    void adjustParams(Bundle counterDataExtras) {
+        int newColor = counterDataExtras.getInt("color");
+        if (newColor != color) {
+            color = newColor;
             fillPaint.setColor(color);
             textPaint.setColor(negativeColor(color));
         }
-        counter = counterData.getCounter();
+        counter = counterDataExtras.getLong(CounterView.getCounterSource());
     }
 }

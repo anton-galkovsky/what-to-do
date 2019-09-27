@@ -3,6 +3,7 @@ package galanton.whattodo;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+import android.os.Bundle;
 
 class TimeCounterView extends CounterView {
 
@@ -14,12 +15,12 @@ class TimeCounterView extends CounterView {
     private Paint strokePaint;
     private Paint textPaint;
 
-    TimeCounterView(int counterViewId, TimeCounterData timeCounterData, int minViewSide, MainActivity activity) {
+    TimeCounterView(int counterViewId, Bundle timeCounterDataExtras, int minViewSide, MainActivity activity) {
         super(counterViewId, minViewSide, activity);
 
-        color = timeCounterData.getColor();
-        counter = timeCounterData.getCounter();
-        running = timeCounterData.isRunning();
+        color = timeCounterDataExtras.getInt("color");
+        counter = timeCounterDataExtras.getLong(CounterView.getCounterSource());
+        running = timeCounterDataExtras.getBoolean("running");
 
         fillPaint = new Paint();
         fillPaint.setColor(color);
@@ -56,15 +57,16 @@ class TimeCounterView extends CounterView {
     }
 
     @Override
-    void adjustParams(CounterData counterData) {
-        if (counterData.getColor() != color) {
-            color = counterData.getColor();
+    void adjustParams(Bundle counterDataExtras) {
+        int newColor = counterDataExtras.getInt("color");
+        if (newColor != color) {
+            color = newColor;
             fillPaint.setColor(color);
             strokePaint.setColor(negativeColor(color));
             textPaint.setColor(negativeColor(color));
         }
-        counter = counterData.getCounter();
-        running = ((TimeCounterData) counterData).isRunning();
+        counter = counterDataExtras.getLong(CounterView.getCounterSource());
+        running = counterDataExtras.getBoolean("running");
     }
 
     private String timeFormat(long seconds) {

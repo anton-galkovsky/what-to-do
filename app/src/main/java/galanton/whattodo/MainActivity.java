@@ -1,6 +1,7 @@
 package galanton.whattodo;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.NavigationView;
@@ -19,6 +20,8 @@ public class MainActivity extends AppCompatActivity
 
     private ProcessManager processManager;
     private View processedView;
+    private ScreenType screenType;
+
     private final int callbackInterval = 1000;
     private Handler callbackHandler;
     private Runnable periodicCallback = new Runnable() {
@@ -36,6 +39,9 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        loadPreferences();
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -50,38 +56,73 @@ public class MainActivity extends AppCompatActivity
 
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
-        processManager = new ProcessManager(dm.widthPixels, dm.heightPixels, "dataFile", this);
+
+        if (screenType == ScreenType.ALL_TIME) {
+            navigationView.setCheckedItem(R.id.nav_all_time);
+        } else {
+            navigationView.setCheckedItem(R.id.nav_day);
+        }
+
         processedView = null;
         callbackHandler = new Handler();
+        processManager = new ProcessManager(dm.widthPixels, dm.heightPixels,
+                "dataFile", screenType, this);
+    }
+
+    private void loadPreferences() {
+        SharedPreferences pref = getPreferences(MODE_PRIVATE);
+        screenType = ScreenType.valueOf(pref.getString(ScreenType.class.getName(), ScreenType.ALL_TIME.name()));
+    }
+
+    private void savePreferences() {
+        SharedPreferences pref = getPreferences(MODE_PRIVATE);
+        SharedPreferences.Editor ed = pref.edit();
+        ed.putString(ScreenType.class.getName(), screenType.name());
+        ed.apply();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
         periodicCallback.run();
     }
 
     @Override
-    public void onDestroy() {
+    protected void onStop() {
+        super.onStop();
         callbackHandler.removeCallbacks(periodicCallback);
-        super.onDestroy();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
+        if (screenType == ScreenType.ALL_TIME) {
+            menu.findItem(R.id.action_sync).setVisible(false);
+        } else if (screenType == ScreenType.DAY) {
+            menu.findItem(R.id.action_sync).setVisible(true);
+        }
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_add) {
+        int id = item.getItemId();
+        if (id == R.id.action_add) {
             startActivityForResult(new Intent(this, NewActionParamsActivity.class), 123);
+        } else if (id == R.id.action_sync) {
+            processManager.onSync();
         }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public boolean onLongClick(View view) {
-        Intent intent = new Intent(this, AdjustActionParamsActivity.class);
-        processManager.putExtras(intent, view);
-        processedView = view;
-        startActivityForResult(intent, 234);
+        if (screenType == ScreenType.ALL_TIME) {
+            Intent intent = new Intent(this, AdjustActionParamsActivity.class);
+            intent.putExtras(processManager.getExtras(view));
+            processedView = view;
+            startActivityForResult(intent, 234);
+        }
         return true;
     }
 
@@ -102,9 +143,8 @@ public class MainActivity extends AppCompatActivity
                 processManager.deleteCounter(processedView);
             } else if (resultCode == 2) {
                 int color = data.getIntExtra("color", 0);
-                long counter = data.getLongExtra("counter", 0);
-                boolean newColor = data.getBooleanExtra("newColor", false);
-                processManager.adjustCounter(processedView, color, counter, newColor);
+                long counterInc = data.getLongExtra("counter_inc", 0);
+                processManager.adjustCounter(processedView, color, counterInc);
             }
             processedView = null;
         }
@@ -120,28 +160,21 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
         int id = item.getItemId();
-
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        if (id == R.id.nav_all_time) {
+            screenType = ScreenType.ALL_TIME;
+        } else if (id == R.id.nav_day) {
+            screenType = ScreenType.DAY;
         }
+        processManager.setScreenType(screenType);
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
+
+        invalidateOptionsMenu();
+        savePreferences();
         return true;
     }
 

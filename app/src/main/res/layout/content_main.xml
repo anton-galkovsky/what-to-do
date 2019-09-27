@@ -19,6 +19,6 @@
             android:id="@+id/base_linear_layout"
             android:showDividers="middle"
             android:divider="@drawable/empty_divider"
-            android:padding="10dp"></LinearLayout>
+            android:padding="10dp" />
     </ScrollView>
 </android.support.constraint.ConstraintLayout>

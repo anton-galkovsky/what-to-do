@@ -1,6 +1,6 @@
 package galanton.whattodo;
 
-import android.content.Intent;
+import android.os.Bundle;
 
 import java.util.ArrayList;
 
@@ -43,8 +43,9 @@ class DataManager {
         return newId++;
     }
 
-    CounterData getDataById(int id) {
-        return counterDataArr.get(findIndexById(id));
+    Bundle getDataExtrasById(int id) {
+        int index = findIndexById(id);
+        return counterDataArr.get(index).getExtras();
     }
 
     void removeCounterData(int id) {
@@ -54,9 +55,9 @@ class DataManager {
         storageManager.writeDataArr(counterDataArr);
     }
 
-    void adjustCounterData(int id, int color, long counter, boolean newColor) {
+    void adjustCounterData(int id, int color, long counterInc) {
         int index = findIndexById(id);
-        counterDataArr.get(index).adjustParams(color, counter, newColor);
+        counterDataArr.get(index).adjustParams(color, counterInc);
         storageManager.writeDataArr(counterDataArr);
     }
 
@@ -67,14 +68,15 @@ class DataManager {
     }
 
     void updateTimes(long time) {
-        for (int i = 0; i < counterIdArr.size(); i++) {
-            counterDataArr.get(i).updateTimes(time);
+        for (CounterData counterData : counterDataArr) {
+            counterData.updateTimes(time);
         }
     }
 
-    void putExtras(Intent intent, int id) {
-        int index = findIndexById(id);
-        counterDataArr.get(index).putExtras(intent);
+    void onSync() {
+        for (CounterData counterData : counterDataArr) {
+            counterData.onSync();
+        }
     }
 
     private int findIndexById(int id) {

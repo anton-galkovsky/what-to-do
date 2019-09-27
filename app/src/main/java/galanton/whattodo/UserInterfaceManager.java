@@ -1,7 +1,7 @@
 package galanton.whattodo;
 
+import android.os.Bundle;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -16,24 +16,29 @@ class UserInterfaceManager {
     private int usefulScreenWidth;
     private int minViewSide;
 
+    private ScreenType screenType;
+
     private boolean needRegroup;
 
     UserInterfaceManager(int screenWidth, int screenHeight,
-                         ArrayList<Integer> counterIdArr, ArrayList<CounterData> counterDataArr, MainActivity activity) {
+                         ArrayList<Integer> counterIdArr, ArrayList<CounterData> counterDataArr,
+                         ScreenType screenType, MainActivity activity) {
         this.activity = activity;
         this.screenWidth = screenWidth;
         usefulScreenWidth = screenWidth - 2 * new HorizontalContainer(activity).getDividerStep();
         minViewSide = Math.max(screenHeight, screenWidth) / 12;
         containers = new ArrayList<>();
         counterViews = new ArrayList<>();
+        this.screenType = screenType;
+        CounterView.setCounterSource(screenType.value);
 
         for (int i = 0; i < counterDataArr.size(); i++) {
             CounterData data = counterDataArr.get(i);
             int id = counterIdArr.get(i);
             if (data instanceof TimeCounterData) {
-                counterViews.add(new TimeCounterView(id, (TimeCounterData) data, minViewSide, activity));
+                counterViews.add(new TimeCounterView(id, data.getExtras(), minViewSide, activity));
             } else if (data instanceof ClickCounterData) {
-                counterViews.add(new ClickCounterView(id, (ClickCounterData) data, minViewSide, activity));
+                counterViews.add(new ClickCounterView(id, data.getExtras(), minViewSide, activity));
             }
         }
 
@@ -41,14 +46,14 @@ class UserInterfaceManager {
         updateScreen();
     }
 
-    void addTimeCounterView(int id, TimeCounterData timeCounterData) {
-        counterViews.add(new TimeCounterView(id, timeCounterData, minViewSide, activity));
+    void addTimeCounterView(int id, Bundle timeCounterDataExtras) {
+        counterViews.add(new TimeCounterView(id, timeCounterDataExtras, minViewSide, activity));
         needRegroup = true;
         updateScreen();
     }
 
-    void addClickCounterView(int id, ClickCounterData clickCounterData) {
-        counterViews.add(new ClickCounterView(id, clickCounterData, minViewSide, activity));
+    void addClickCounterView(int id, Bundle clickCounterDataExtras) {
+        counterViews.add(new ClickCounterView(id, clickCounterDataExtras, minViewSide, activity));
         needRegroup = true;
         updateScreen();
     }
@@ -59,25 +64,40 @@ class UserInterfaceManager {
         updateScreen();
     }
 
-    void adjustCounterView(int id, CounterData counterData) {
-        findViewById(id).adjustParams(counterData);
+    void adjustCounterView(int id, Bundle counterDataExtras) {
+        findViewById(id).adjustParams(counterDataExtras);
         needRegroup = true;
         updateScreen();
     }
 
     void adjustCounterViews(ArrayList<Integer> idArr, ArrayList<CounterData> dataArr) {
         for (int i = 0; i < idArr.size(); i++) {
-            findViewById(idArr.get(i)).adjustParams(dataArr.get(i));
+            findViewById(idArr.get(i)).adjustParams(dataArr.get(i).getExtras());
         }
         // without regroup
         updateScreen();
+    }
+
+    void setScreenType(ScreenType screenType, ArrayList<Integer> idArr, ArrayList<CounterData> dataArr) {
+        CounterView.setCounterSource(screenType.value);
+        this.screenType = screenType;
+
+        needRegroup = true;
+        adjustCounterViews(idArr, dataArr);
     }
 
     private void updateScreen() {
         sortViews();
 
         for (CounterView counterView : counterViews) {
-            double square = Math.max(minViewSide * minViewSide, counterView.getScaledCounter());
+            int value = counterView.getScaledCounter();
+            int bound = minViewSide * minViewSide;
+            double square;
+            if (screenType == ScreenType.ALL_TIME) {
+                square = value < 2 * bound ? bound + value / 2.0 : value;
+            } else {
+                square = value < bound / 4.0 ? bound + value * 3 : 7 * value;
+            }
             int newWidth, newHeight;
             if ((int) (square / minViewSide) <= usefulScreenWidth) {
                 newWidth = (int) (square / minViewSide);

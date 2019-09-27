@@ -1,6 +1,6 @@
 package galanton.whattodo;
 
-import android.content.Intent;
+import android.os.Bundle;
 
 import java.io.Serializable;
 
@@ -9,26 +9,16 @@ class TimeCounterData implements Serializable, CounterData {
     static final long serialVersionUID = -7424958886620172413L;
 
     private long counter;
+    private long todayCounter;
     private int color;
     private long lastUpdateTime;
     private boolean running;
 
     TimeCounterData(int color) {
         counter = 0;
+        todayCounter = 0;
         this.color = color;
         lastUpdateTime = -1;
-    }
-
-    boolean isRunning() {
-        return running;
-    }
-
-    public long getCounter() {
-        return counter;
-    }
-
-    public int getColor() {
-        return color;
     }
 
     public void updateTimes(long time) {
@@ -37,16 +27,16 @@ class TimeCounterData implements Serializable, CounterData {
         }
         if (running) {
             counter += time - lastUpdateTime;
+            todayCounter += time - lastUpdateTime;
         }
         lastUpdateTime = time;
     }
 
     @Override
-    public void adjustParams(int color, long counter, boolean newColor) {
-        if (newColor) {
-            this.color = color;
-        }
-        this.counter = counter;
+    public void adjustParams(int color, long counterInc) {
+        this.color = color;
+        todayCounter += counterInc;
+        counter += counterInc;
     }
 
     @Override
@@ -56,9 +46,18 @@ class TimeCounterData implements Serializable, CounterData {
     }
 
     @Override
-    public void putExtras(Intent intent) {
-        intent.putExtra("type", "time");
-        intent.putExtra("counter", counter);
-        intent.putExtra("color", color);
+    public void onSync() {
+        todayCounter = 0;
+    }
+
+    @Override
+    public Bundle getExtras() {
+        Bundle bundle = new Bundle();
+        bundle.putString("type", "time");
+        bundle.putLong(ScreenType.ALL_TIME.value, counter);
+        bundle.putLong(ScreenType.DAY.value, todayCounter);
+        bundle.putInt("color", color);
+        bundle.putBoolean("running", running);
+        return bundle;
     }
 }

@@ -1,6 +1,6 @@
 package galanton.whattodo;
 
-import android.content.Intent;
+import android.os.Bundle;
 import android.view.View;
 
 class ProcessManager {
@@ -8,20 +8,20 @@ class ProcessManager {
     private DataManager dataManager;
     private UserInterfaceManager userInterfaceManager;
 
-    ProcessManager(int screenWidth, int screenHeight, String fileName, MainActivity activity) {
+    ProcessManager(int screenWidth, int screenHeight, String fileName, ScreenType screenType, MainActivity activity) {
         dataManager = new DataManager(fileName, activity);
-        userInterfaceManager = new UserInterfaceManager(
-                screenWidth, screenHeight, dataManager.getIdArr(), dataManager.getDataArr(), activity);
+        userInterfaceManager = new UserInterfaceManager(screenWidth, screenHeight,
+                dataManager.getIdArr(), dataManager.getDataArr(), screenType, activity);
     }
 
     void addTimeCounter(int color) {
         int id = dataManager.addTimeCounterData(color);
-        userInterfaceManager.addTimeCounterView(id, (TimeCounterData) dataManager.getDataById(id));
+        userInterfaceManager.addTimeCounterView(id, dataManager.getDataExtrasById(id));
     }
 
     void addClickCounter(int color) {
         int id = dataManager.addClickCounterData(color);
-        userInterfaceManager.addClickCounterView(id, (ClickCounterData) dataManager.getDataById(id));
+        userInterfaceManager.addClickCounterView(id, dataManager.getDataExtrasById(id));
     }
 
     void deleteCounter(View view) {
@@ -30,16 +30,16 @@ class ProcessManager {
         userInterfaceManager.removeCounterView(id);
     }
 
-    void adjustCounter(View view, int color, long counter, boolean newColor) {
+    void adjustCounter(View view, int color, long counterInc) {
         int id = ((CounterView) view).getCounterViewId();
-        dataManager.adjustCounterData(id, color, counter, newColor);
-        userInterfaceManager.adjustCounterView(id, dataManager.getDataById(id));
+        dataManager.adjustCounterData(id, color, counterInc);
+        userInterfaceManager.adjustCounterView(id, dataManager.getDataExtrasById(id));
     }
 
     void onClick(View view, long time) {
         int id = ((CounterView) view).getCounterViewId();
         dataManager.onCounterDataClick(id, time);
-        userInterfaceManager.adjustCounterView(id, dataManager.getDataById(id));
+        userInterfaceManager.adjustCounterView(id, dataManager.getDataExtrasById(id));
     }
 
     void updateTimes(long time) {
@@ -47,8 +47,17 @@ class ProcessManager {
         userInterfaceManager.adjustCounterViews(dataManager.getIdArr(), dataManager.getDataArr());
     }
 
-    void putExtras(Intent intent, View view) {
+    void setScreenType(ScreenType screenType) {
+        userInterfaceManager.setScreenType(screenType, dataManager.getIdArr(), dataManager.getDataArr());
+    }
+
+    Bundle getExtras(View view) {
         int id = ((CounterView) view).getCounterViewId();
-        dataManager.putExtras(intent, id);
+        return dataManager.getDataExtrasById(id);
+    }
+
+    void onSync() {
+        dataManager.onSync();
+        userInterfaceManager.adjustCounterViews(dataManager.getIdArr(), dataManager.getDataArr());
     }
 }
