@@ -44,7 +44,7 @@ class ProcessManager {
 
     void updateTimes(long time) {
         dataManager.updateTimes(time);
-        userInterfaceManager.adjustCounterViews(dataManager.getIdArr(), dataManager.getDataArr());
+        userInterfaceManager.updateCounterViews(dataManager.getIdArr(), dataManager.getDataArr());
     }
 
     void setScreenType(ScreenType screenType) {
@@ -58,6 +58,6 @@ class ProcessManager {
 
     void onSync() {
         dataManager.onSync();
-        userInterfaceManager.adjustCounterViews(dataManager.getIdArr(), dataManager.getDataArr());
+        userInterfaceManager.changeCounterViews(dataManager.getIdArr(), dataManager.getDataArr());
     }
 }

@@ -70,11 +70,11 @@ class UserInterfaceManager {
         updateScreen();
     }
 
-    void adjustCounterViews(ArrayList<Integer> idArr, ArrayList<CounterData> dataArr) {
+    void changeCounterViews(ArrayList<Integer> idArr, ArrayList<CounterData> dataArr) {
         for (int i = 0; i < idArr.size(); i++) {
             findViewById(idArr.get(i)).adjustParams(dataArr.get(i).getExtras());
         }
-        // without regroup
+        needRegroup = true;
         updateScreen();
     }
 
@@ -83,7 +83,15 @@ class UserInterfaceManager {
         this.screenType = screenType;
 
         needRegroup = true;
-        adjustCounterViews(idArr, dataArr);
+        changeCounterViews(idArr, dataArr);
+    }
+
+    void updateCounterViews(ArrayList<Integer> idArr, ArrayList<CounterData> dataArr) {
+        for (int i = 0; i < idArr.size(); i++) {
+            findViewById(idArr.get(i)).adjustParams(dataArr.get(i).getExtras());
+        }
+        // without regroup
+        updateScreen();
     }
 
     private void updateScreen() {

@@ -1,8 +1,9 @@
 package galanton.whattodo;
 
 import android.content.Context;
+import androidx.appcompat.widget.AppCompatTextView;
 
-class MeasurableView extends android.support.v7.widget.AppCompatTextView {
+class MeasurableView extends AppCompatTextView {
 
     private int actualWidth;
     private int actualHeight;
